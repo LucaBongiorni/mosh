@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/typeof/typeof.hpp>
 #include <stdio.h>
 
 #include "terminaldisplay.h"
@@ -48,7 +47,7 @@ std::string Display::new_frame( bool initialized, const Framebuffer &last, const
       /* set window title */
     frame.append( "\033]0;" );
     const std::deque<wchar_t> &window_title( f.get_window_title() );
-    for ( BOOST_AUTO( i, window_title.begin() );
+    for ( std::deque<wchar_t>::const_iterator i = window_title.begin();
 	  i != window_title.end();
 	  i++ ) {
       snprintf( tmp, 64, "%lc", *i );
