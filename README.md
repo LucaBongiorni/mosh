@@ -100,7 +100,6 @@ Building from source
 
   * [GNU Autotools][]
   * the [Protocol Buffers][] library and compiler
-  * [Boost][]
   * `ncurses`
   * `zlib`
   * the Perl module [IO::Pty][]
@@ -114,7 +113,6 @@ Building from source
 
   [GNU Autotools]:    http://www.gnu.org/software/autoconf/
   [Protocol Buffers]: http://code.google.com/p/protobuf/
-  [Boost]:            http://www.boost.org/
   [IO::Pty]:          http://search.cpan.org/~toddr/IO-Tty/Pty.pm
 
 Usage
