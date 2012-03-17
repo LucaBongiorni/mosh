@@ -186,33 +186,39 @@ void NotificationEngine::apply( Framebuffer &fb ) const
   }
 
   /* write message */
-  wchar_t tmp[ 128 ];
+  const size_t string_to_draw_size = 128;
+  wchar_t string_to_draw[ string_to_draw_size ];
 
   if ( message.empty() && (!time_expired) ) {
     return;
   } else if ( message.empty() && time_expired ) {
-    swprintf( tmp, 128, L"mosh: Last contact %.0f seconds ago. [To quit: Ctrl-^ .]", (double)(now - last_word_from_server) / 1000.0 );
+    swprintf( string_to_draw, string_to_draw_size,
+              L"mosh: Last contact %.0f seconds ago. [To quit: Ctrl-^ .]",
+              (double)(now - last_word_from_server) / 1000.0 );
   } else if ( (!message.empty()) && (!time_expired) ) {
-    swprintf( tmp, 128, L"mosh: %ls [To quit: Ctrl-^ .]", message.c_str() );
+    swprintf( string_to_draw, string_to_draw_size,
+              L"mosh: %ls [To quit: Ctrl-^ .]", message.c_str() );
   } else {
-    swprintf( tmp, 128, L"mosh: %ls (%.0f s without contact.) [To quit: Ctrl-^ .]", message.c_str(),
+    swprintf( string_to_draw, string_to_draw_size,
+              L"mosh: %ls (%.0f s without contact.) [To quit: Ctrl-^ .]", message.c_str(),
 	      (double)(now - last_word_from_server) / 1000.0 );
   }
-
-  wstring string_to_draw( tmp );
 
   int overlay_col = 0;
 
   Cell *combining_cell = fb.get_mutable_cell( 0, 0 );
 
   /* We unfortunately duplicate the terminal's logic for how to render a Unicode sequence into graphemes */
-  for ( wstring::const_iterator i = string_to_draw.begin(); i != string_to_draw.end(); i++ ) {
+  for ( size_t i = 0; i < string_to_draw_size; i++ ) {
     if ( overlay_col >= fb.ds.get_width() ) {
       break;
     }
 
-    wchar_t ch = *i;
-    int chwidth = ch == L'\0' ? -1 : wcwidth( ch );
+    wchar_t ch = string_to_draw[i];
+    if (ch == L'\0')
+      break;
+
+    const int chwidth = wcwidth( ch );
     Cell *this_cell = 0;
 
     switch ( chwidth ) {
