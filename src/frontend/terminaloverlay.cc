@@ -189,6 +189,8 @@ void NotificationEngine::apply( Framebuffer &fb ) const
   const size_t string_to_draw_size = 128;
   wchar_t string_to_draw[ string_to_draw_size ];
 
+  wchar_t *message_cstr = NULL;
+
   if ( message.empty() && (!time_expired) ) {
     return;
   } else if ( message.empty() && time_expired ) {
@@ -196,12 +198,18 @@ void NotificationEngine::apply( Framebuffer &fb ) const
               L"mosh: Last contact %.0f seconds ago. [To quit: Ctrl-^ .]",
               (double)(now - last_word_from_server) / 1000.0 );
   } else if ( (!message.empty()) && (!time_expired) ) {
+    message_cstr = message.as_new_cstr();
     swprintf( string_to_draw, string_to_draw_size,
-              L"mosh: %ls [To quit: Ctrl-^ .]", message.c_str() );
+              L"mosh: %ls [To quit: Ctrl-^ .]", message_cstr );
   } else {
+    message_cstr = message.as_new_cstr();
     swprintf( string_to_draw, string_to_draw_size,
-              L"mosh: %ls (%.0f s without contact.) [To quit: Ctrl-^ .]", message.c_str(),
+              L"mosh: %ls (%.0f s without contact.) [To quit: Ctrl-^ .]", message_cstr,
 	      (double)(now - last_word_from_server) / 1000.0 );
+  }
+
+  if ( message_cstr ) {
+    delete [] message_cstr;
   }
 
   int overlay_col = 0;
@@ -262,7 +270,7 @@ void NotificationEngine::apply( Framebuffer &fb ) const
 void NotificationEngine::adjust_message( void )
 {
   if ( timestamp() >= message_expiration ) {
-    message.clear();
+    message = ustring();
   }  
 }
 

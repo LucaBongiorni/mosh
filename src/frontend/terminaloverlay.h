@@ -22,6 +22,7 @@
 #include "terminalframebuffer.h"
 #include "network.h"
 #include "parser.h"
+#include "ustring.h"
 
 #include <vector>
 
@@ -31,7 +32,6 @@ namespace Overlay {
   using std::deque;
   using std::list;
   using std::vector;
-  using std::wstring;
 
   enum Validity {
     Pending,
@@ -127,15 +127,15 @@ namespace Overlay {
   class NotificationEngine {
   private:
     uint64_t last_word_from_server;
-    wstring message;
+    ustring message;
     uint64_t message_expiration;
 
   public:
     bool need_countup( uint64_t ts ) const { return ts - last_word_from_server > 6500; }
     void adjust_message( void );
     void apply( Framebuffer &fb ) const;
-    void set_notification_string( const wstring &s_message, bool permanent = false ) { message = s_message; if ( permanent ) { message_expiration = -1; } else { message_expiration = timestamp() + 1000; } }
-    const wstring &get_notification_string( void ) const { return message; }
+    void set_notification_string( const ustring &s_message, bool permanent = false ) { message = s_message; if ( permanent ) { message_expiration = -1; } else { message_expiration = timestamp() + 1000; } }
+    const ustring &get_notification_string( void ) const { return message; }
     void server_heard( uint64_t s_last_word ) { last_word_from_server = s_last_word; }
     uint64_t get_message_expiration( void ) const { return message_expiration; }
 
@@ -246,8 +246,9 @@ namespace Overlay {
 
   public:
     void apply( Framebuffer &fb ) const { fb.prefix_window_title( prefix ); }
-    void set_prefix( const wstring s ) {
-      prefix = deque<wchar_t>( s.begin(), s.end() );
+    void set_prefix( const ustring s ) {
+      const vector<wchar_t> &v = s.as_vector();
+      prefix = deque<wchar_t>( v.begin(), v.end() );
     }
     TitleEngine() : prefix() {}
   };
@@ -265,7 +266,7 @@ namespace Overlay {
     NotificationEngine & get_notification_engine( void ) { return notifications; }
     PredictionEngine & get_prediction_engine( void ) { return predictions; }
 
-    void set_title_prefix( const wstring s ) { title.set_prefix( s ); }
+    void set_title_prefix( const ustring s ) { title.set_prefix( s ); }
 
     OverlayManager() : notifications(), predictions(), title() {}
 
