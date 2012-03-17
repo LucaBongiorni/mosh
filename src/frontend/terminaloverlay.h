@@ -246,7 +246,9 @@ namespace Overlay {
 
   public:
     void apply( Framebuffer &fb ) const { fb.prefix_window_title( prefix ); }
-    void set_prefix( const wstring s );
+    void set_prefix( const wstring s ) {
+      prefix = deque<wchar_t>( s.begin(), s.end() );
+    }
     TitleEngine() : prefix() {}
   };
 

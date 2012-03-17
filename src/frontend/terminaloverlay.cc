@@ -300,11 +300,6 @@ int OverlayManager::wait_time( void )
   return next_expiry;
 }
 
-void TitleEngine::set_prefix( const wstring s )
-{
-  prefix = deque<wchar_t>( s.begin(), s.end() );
-}
-
 void ConditionalOverlayRow::apply( Framebuffer &fb, uint64_t confirmed_epoch, bool flag ) const
 {
   for ( overlay_cells_type::const_iterator it = overlay_cells.begin();
