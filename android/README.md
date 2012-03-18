@@ -15,7 +15,15 @@ The script `android/build` runs on x86 GNU/Linux and builds the executable
 
 [Android NDK]:  http://developer.android.com/sdk/ndk/index.html
 
+The script `android/download` will fetch whichever of these are missing.  It
+does verify checksums against some files I had lying around, but don't take
+this as ultimate trust!
+
 You will need a fairly recent NDK.  (How recent?  Let's find out someday.)
+
+
+Build options
+-------------
 
 You can do a parallel build like so:
 

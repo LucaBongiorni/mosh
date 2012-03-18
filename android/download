@@ -1,0 +1,26 @@
+#!/bin/bash -e
+
+here="$(dirname "$(readlink -f "$0")")"
+source "$here"/vars
+cd "$here"/inputs
+
+function fetch {
+  eval src=\$${1}_src
+  eval url=\$${1}_url
+  eval sha=\$${1}_sha
+
+  wget -O "$src" -c "$url"
+  echo "$sha  $src" | sha1sum --check --quiet
+}
+
+fetch ncurses
+fetch protobuf
+
+if ! [ -d ndk ]; then
+  fetch ndk
+  echo "Extracting $ndk_src"
+  mkdir -p ndk
+  tar --strip-components=1 -Cndk -axf $ndk_src
+fi
+
+echo 'Success!'

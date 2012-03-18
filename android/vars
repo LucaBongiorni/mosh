@@ -1,0 +1,15 @@
+arch=arm
+platform=arm-linux-androideabi
+android_version=14
+
+ncurses_src=ncurses-5.9.tar.gz
+ncurses_url=http://ftp.gnu.org/pub/gnu/ncurses/$ncurses_src
+ncurses_sha=3e042e5f2c7223bffdaac9646a533b8c758b65b5
+
+protobuf_src=protobuf-2.4.1.tar.bz2
+protobuf_url=http://protobuf.googlecode.com/files/$protobuf_src
+protobuf_sha=df5867e37a4b51fb69f53a8baf5b994938691d6d
+
+ndk_src=android-ndk-r7b-linux-x86.tar.bz2
+ndk_url=http://dl.google.com/android/ndk/$ndk_src
+ndk_sha=501ab78a8d98230153baacd49920142f65e97664

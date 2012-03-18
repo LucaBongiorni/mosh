@@ -1,12 +1,7 @@
 #!/bin/bash -xe
 
-arch=arm
-platform=arm-linux-androideabi
-android_version=14
-ncurses=ncurses-5.9.tar.gz
-protobuf=protobuf-2.4.1.tar.bz2
-
 here="$(dirname "$(readlink -f "$0")")"
+source "$here"/vars
 
 inputs="$here"/inputs
 tool="$here"/tool
@@ -19,8 +14,8 @@ export PATH="$tool"/bin:"$PATH"
 ndk="$(readlink -f "$inputs"/ndk)"
 
 if ! [    -d "$ndk" \
-       -a -f "$inputs/$ncurses" \
-       -a -f "$inputs/$protobuf" ]; then
+       -a -f "$inputs/$ncurses_src" \
+       -a -f "$inputs/$protobuf_src" ]; then
   set +x
   echo
   echo "Error: missing inputs"
@@ -56,8 +51,8 @@ function config {
 }
 
 function build_ncurses {
-  unpack $ncurses
-  cd "$libs"/${ncurses%.*.*}
+  unpack $ncurses_src
+  cd "$libs"/${ncurses_src%.*.*}
   config \
     --prefix="$prefix" \
     --disable-shared \
@@ -80,8 +75,8 @@ EOF
 }
 
 function build_protobuf {
-  unpack $protobuf
-  cd "$libs"/${protobuf%.*.*}
+  unpack $protobuf_src
+  cd "$libs"/${protobuf_src%.*.*}
   patch -p0 <<EOF
 --- config.sub.orig	2012-03-18 03:49:52.000000000 -0400
 +++ config.sub	2012-03-18 03:50:21.000000000 -0400
