@@ -56,6 +56,27 @@ const LocaleVar get_ctype( void )
   }
 }
 
+
+#ifdef __ANDROID__
+// Android doesn't have proper locale support.
+// Stub these out, at least for now.
+
+const char *locale_charset( void )
+{
+  return "unknown";
+}
+
+bool is_utf8_locale( void )
+{
+  return true;  /* a lie */
+}
+
+void set_native_locale( void )
+{
+}
+
+
+#else
 const char *locale_charset( void )
 {
   static const char ASCII_name[] = "US-ASCII";
@@ -96,6 +117,9 @@ void set_native_locale( void ) {
     }
   }
 }
+
+#endif // !defined(__ANDROID__)
+
 
 void clear_locale_variables( void ) {
   unsetenv( "LANG" );
