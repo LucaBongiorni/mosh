@@ -1,0 +1,128 @@
+#!/bin/bash -xe
+
+arch=arm
+platform=arm-linux-androideabi
+android_version=14
+ncurses=ncurses-5.9.tar.gz
+protobuf=protobuf-2.4.1.tar.bz2
+
+here="$(dirname "$(readlink -f "$0")")"
+
+inputs="$here"/inputs
+tool="$here"/tool
+libs="$here"/libs
+prefix="$here"/prefix
+mkdir -p "$tool" "$libs" "$prefix"
+
+export PATH="$tool"/bin:"$PATH"
+
+ndk="$(readlink -f "$inputs"/ndk)"
+
+if ! [    -d "$ndk" \
+       -a -f "$inputs/$ncurses" \
+       -a -f "$inputs/$protobuf" ]; then
+  set +x
+  echo
+  echo "Error: missing inputs"
+  echo "See android/README.md."
+  exit 1
+fi
+
+protoc="$(which protoc; true)"
+if [ "$protoc" = "" ]; then
+  set +x
+  echo
+  echo "Error: need Protocol Buffers compiler (protoc)"
+  exit 1
+fi
+
+function make_toolchain {
+  "$ndk"/build/tools/make-standalone-toolchain.sh \
+    --arch=$arch \
+    --platform=android-$android_version \
+    --install-dir="$tool"
+}
+
+function unpack {
+  tar -C"$libs" -axf "$inputs/$1"
+}
+
+function config {
+  ./configure \
+    --host=$platform  \
+    CC=$platform-gcc  \
+    CXX=$platform-g++ \
+    "$@"
+}
+
+function build_ncurses {
+  unpack $ncurses
+  cd "$libs"/${ncurses%.*.*}
+  config \
+    --prefix="$prefix" \
+    --disable-shared \
+    --without-manpages \
+    --without-tests
+  patch -p0 <<EOF
+--- include/ncurses_cfg.h.orig  2012-03-18 03:36:59.000000000 -0400
++++ include/ncurses_cfg.h       2012-03-18 03:38:27.000000000 -0400
+@@ -105,7 +105,6 @@
+ #define HAVE_FCNTL_H 1
+ #define HAVE_GETOPT_H 1
+ #define HAVE_LIMITS_H 1
+-#define HAVE_LOCALE_H 1
+ #define HAVE_MATH_H 1
+ #define HAVE_POLL_H 1
+ #define HAVE_SYS_IOCTL_H 1
+EOF
+  make $MAKE_FLAGS install
+  cd "$here"
+}
+
+function build_protobuf {
+  unpack $protobuf
+  cd "$libs"/${protobuf%.*.*}
+  patch -p0 <<EOF
+--- config.sub.orig	2012-03-18 03:49:52.000000000 -0400
++++ config.sub	2012-03-18 03:50:21.000000000 -0400
+@@ -1269,6 +1269,7 @@
+ 	-gnu* | -bsd* | -mach* | -minix* | -genix* | -ultrix* | -irix* \\
+ 	      | -*vms* | -sco* | -esix* | -isc* | -aix* | -cnk* | -sunos | -sunos[34]*\\
+ 	      | -hpux* | -unos* | -osf* | -luna* | -dgux* | -solaris* | -sym* \\
++	      | -androideabi \\
+ 	      | -kopensolaris* \\
+ 	      | -amigaos* | -amigados* | -msdos* | -newsos* | -unicos* | -aof* \\
+ 	      | -aos* | -aros* \\
+EOF
+  cp config.sub gtest/build-aux/
+  config \
+    --prefix="$prefix" \
+    --disable-shared   \
+    --with-protoc="$protoc"
+  make $MAKE_FLAGS install
+  cd "$here"
+}
+
+function build_mosh {
+  dir_flags="-I$prefix/include -I$prefix/include/ncurses -L$prefix/lib"
+  cd "$here"/..
+  ./autogen.sh
+  config \
+    --disable-server      \
+    CFLAGS="$dir_flags"   \
+    CXXFLAGS="$dir_flags" \
+    protobuf_LIBS="-lprotobuf -lz"  # no pthread
+  make $MAKE_FLAGS
+
+  set +x
+  echo
+  echo 'Success!'
+  file src/frontend/mosh-client
+
+  cd "$here"
+}
+
+make_toolchain
+build_ncurses
+build_protobuf
+build_mosh
