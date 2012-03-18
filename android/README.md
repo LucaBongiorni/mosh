@@ -30,4 +30,7 @@ You can do a parallel build like so:
     $ MAKE_FLAGS=-j12 android/build
 
 To skip one or another stage of compilation, you'll have to edit the last few
-lines of the script.  Sorry.
+lines of the script.  Sorry.  If `make` fails in Mosh itself, you can restart
+it with
+
+    $ PATH=$(pwd)/android/tool/bin:$PATH make
