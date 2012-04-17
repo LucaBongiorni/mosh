@@ -57,6 +57,7 @@ function build_ncurses {
     --prefix="$prefix" \
     --disable-shared \
     --with-termlib \
+    --without-ada \
     --without-manpages \
     --without-tests
   patch -p0 <<EOF
