@@ -109,6 +109,7 @@ function build_mosh {
     CFLAGS="$dir_flags"   \
     CXXFLAGS="$dir_flags" \
     protobuf_LIBS="-lprotobuf -lz"  # no pthread
+  make clean
   make $MAKE_FLAGS
 
   set +x
