@@ -307,11 +307,14 @@ if ( pollfds[ 0 ].revents & (POLLERR | POLLHUP | POLLNVAL) ) {
 }
 ]])],
 	[ac_cv_poll_pty=yes],
-	[ac_cv_poll_pty=no])
+	[ac_cv_poll_pty=no],
+	[ac_cv_poll_pty=yes])
   CFLAGS="$save_CFLAGS"
   LIBS="$save_LIBS"
 ])
 AM_CONDITIONAL([COND_THIRD_POLL], [test "x$ac_cv_poll_pty" = "xno"])
+AS_IF([test x"$cross_compiling" = x"yes"],
+  [AC_MSG_WARN([result yes guessed because of cross compilation])])
 
 AC_MSG_CHECKING([whether pipe2(..., O_CLOEXEC) is supported])
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[#define _GNU_SOURCE
